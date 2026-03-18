@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SnipVault — Your Code Snippet Library</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     HEADER
+═══════════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <span class="logo-bracket">{</span>
+        <span class="logo-dot"></span>
+        <span class="logo-bracket">}</span>
+      </div>
+      <div>
+        <h1>Snip<span>Vault</span></h1>
+        <p>YOUR PERSONAL CODE LIBRARY</p>
+      </div>
+    </div>
+    <button class="btn-add" onclick="openAddModal()">+ New Snippet</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════
+     STATS BAR
+═══════════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat">
+      <div class="stat-num" id="totalSnippets">0</div>
+      <div class="stat-lbl">Total Snippets</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalLangs">0</div>
+      <div class="stat-lbl">Languages</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalCopies">0</div>
+      <div class="stat-lbl">Times Copied</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TOOLBAR — search + filter
+═══════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search snippets..." oninput="renderSnippets()"/>
+    </div>
+    <div class="lang-filters" id="langFilters">
+      <button class="filter-btn active" data-lang="all" onclick="setFilter('all', this)">All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════ -->
+<main>
+
+  <!-- SNIPPET GRID -->
+  <div class="snippet-grid" id="snippetGrid"></div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState" style="display:none">
+    <div class="empty-icon">{ }</div>
+    <h3>No snippets yet</h3>
+    <p>Hit <strong>+ New Snippet</strong> to save your first piece of code</p>
+  </div>
+
+  <!-- EMPTY SEARCH STATE -->
+  <div class="empty-state" id="emptySearch" style="display:none">
+    <div class="empty-icon">~</div>
+    <h3>No results found</h3>
+    <p>Try a different keyword or language filter</p>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════
+     ADD / EDIT MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">New Snippet</h3>
+      <button class="modal-x" onclick="closeAddModal()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label>Title *</label>
+      <input type="text" id="fTitle" placeholder="e.g. Debounce Function"/>
+      <div class="field-error" id="errTitle"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Language *</label>
+        <select id="fLang">
+          <option value="">— Select —</option>
+          <option value="HTML">HTML</option>
+          <option value="CSS">CSS</option>
+          <option value="JavaScript">JavaScript</option>
+          <option value="Python">Python</option>
+          <option value="Java">Java</option>
+          <option value="C++">C++</option>
+          <option value="TypeScript">TypeScript</option>
+          <option value="SQL">SQL</option>
+          <option value="Bash">Bash</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="field-error" id="errLang"></div>
+      </div>
+      <div class="form-group">
+        <label>Tag <span style="color:var(--muted); font-weight:400">(optional)</span></label>
+        <input type="text" id="fTag" placeholder="e.g. utility, auth, ui"/>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Description <span style="color:var(--muted); font-weight:400">(optional)</span></label>
+      <input type="text" id="fDesc" placeholder="What does this snippet do?"/>
+    </div>
+
+    <div class="form-group">
+      <label>Code *</label>
+      <div class="code-editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots">
+            <span class="edot red"></span>
+            <span class="edot amber"></span>
+            <span class="edot green"></span>
+          </div>
+          <span class="editor-lang-tag" id="editorLangTag">code</span>
+        </div>
+        <textarea id="fCode" placeholder="Paste your code here..." spellcheck="false"></textarea>
+      </div>
+      <div class="field-error" id="errCode"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="saveSnippet()">Save Snippet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VIEW / DETAIL MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div>
+        <h3 id="viewTitle"></h3>
+        <div class="view-meta" id="viewMeta"></div>
+      </div>
+      <button class="modal-x" onclick="closeViewModal()">✕</button>
+    </div>
+    <div class="view-desc" id="viewDesc"></div>
+    <div class="code-view-wrap">
+      <div class="editor-topbar">
+        <div class="editor-dots">
+          <span class="edot red"></span>
+          <span class="edot amber"></span>
+          <span class="edot green"></span>
+        </div>
+        <span class="editor-lang-tag" id="viewLangTag"></span>
+        <button class="btn-copy-top" id="copyTopBtn" onclick="copyFromView()">Copy</button>
+      </div>
+      <pre id="viewCode"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="editFromView()">Edit</button>
+      <button class="btn-delete" onclick="deleteFromView()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TOAST NOTIFICATION
+═══════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════ -->
+<script src="script.js"></script>
+</body>
+</html>
