@@ -1,3 +1,5 @@
+https://eclectic-starship-7c3d50.netlify.app/ Deployed
+
 # SnipVault - Personal Code Snippet Library
 A lightweight, browser-based code snippet manager built with plain HTML, CSS, and JavaScript. No frameworks, no backend, no account needed. Your snippets are saved locally in your browser.
 
